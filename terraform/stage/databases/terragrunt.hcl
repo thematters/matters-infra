@@ -10,6 +10,20 @@ locals {
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
   source = "../../modules/databases"
+
+  extra_arguments "custom_vars" {
+    commands = [
+      "apply",
+      "plan",
+      "import",
+      "push",
+      "refresh"
+    ]
+
+    arguments = [
+      "-var-file=${get_terragrunt_dir()}/../terraform.tfvars"
+    ]
+  }
 }
 
 # Include all settings from the root terragrunt.hcl file
@@ -25,6 +39,7 @@ dependencies {
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration
 inputs = {
   env_name = "${local.env}"
-  vpc_name = "${local.env}-vpc"
-  availability_zones = ["us-east-1a", "us-east-1b"]
+  instance_class = "db.t3.small"
+  allocated_storage = 20
+  publicly_accessible = true
 }
