@@ -20,6 +20,7 @@ variable "es_instance_type" {
 
 variable "es_instance_count" {
     description = "EC2 instance count for elasticsearch"
+    type = number
 }
 
 variable "ipfs_instance_type" {
@@ -29,4 +30,20 @@ variable "ipfs_instance_type" {
 
 variable "ipfs_instance_count" {
     description = "EC2 instance count for IPFS"
+    type = number 
+}
+
+variable "redis_instance_type" {
+    description = "Redis instance type"
+    type = string
+}
+
+variable "redis_number_cache_clusters" {
+    description = "Redis instance count for Redis"
+    type = number
+}
+
+variable "redis_automatic_failover_enabled" {
+    description = "Redis automatic failover"
+    type =bool
 }

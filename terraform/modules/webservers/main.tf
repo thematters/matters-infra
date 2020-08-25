@@ -16,6 +16,15 @@ data "aws_subnet_ids" "public" {
   }
 }
 
+data "aws_subnet_ids" "private" {
+  vpc_id = "${data.aws_vpc.web.id}"
+
+  filter {
+    name = "tag:Name"
+    values = ["${var.env_name}-vpc-private-*"]
+  }
+}
+
 data "aws_security_group" "default" {
   vpc_id = data.aws_vpc.web.id
   name   = "default"
@@ -91,3 +100,61 @@ module "ipfs" {
   vpc_security_group_ids      = [module.ipfs_security_group.this_security_group_id]
   associate_public_ip_address = true
 }
+
+# =======================================================
+# ElastiCache Redis
+# =======================================================
+module "redis" {
+  source = "umotif-public/elasticache-redis/aws"
+  version = "~> 1.0.0"
+
+  name_prefix = "server-${var.env_name}"
+  node_type = "${var.redis_instance_type}"
+  number_cache_clusters = var.redis_number_cache_clusters
+  automatic_failover_enabled = var.redis_automatic_failover_enabled
+
+  engine_version           = "5.0.6"
+  port                     = 6379
+  maintenance_window       = "mon:03:00-mon:04:00"
+  snapshot_window          = "04:00-06:00"
+  snapshot_retention_limit = 7
+
+  apply_immediately = true
+  family            = "redis5.0"
+  description = "Queue and cache"
+
+  vpc_id = data.aws_vpc.web.id
+  subnet_ids = data.aws_subnet_ids.private.ids
+}
+
+# =======================================================
+# S3 
+# =======================================================
+module "s3_web" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+  bucket = "web-${var.env_name}.matters.news"
+
+  // bucket policy public for get object
+}
+
+module "s3_server" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+  bucket = "server-${var.env_name}.matters.news"
+
+  // acl = "public"
+  // acl public 
+  // bucket policy public for get object
+}
+
+module "s3_oss" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+  bucket = "oss-${var.env_name}.matters.news"  
+
+  // bucket policy public
+  // static website hosting enabled
+}
+
+
+# =======================================================
+# Beanstalk environments
+# =======================================================

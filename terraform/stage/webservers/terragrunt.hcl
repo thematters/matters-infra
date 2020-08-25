@@ -17,7 +17,8 @@ terraform {
       "plan",
       "import",
       "push",
-      "refresh"
+      "refresh",
+      "destroy"
     ]
 
     arguments = [
@@ -46,4 +47,9 @@ inputs = {
 
   ipfs_instance_type = "t3a.medium"
   ipfs_instance_count = 1
+
+  redis_instance_type = "cache.t3.small"
+  redis_number_cache_clusters = 1
+  # need to be disabled when redis_number_cache_clusters=1
+  redis_automatic_failover_enabled = false
 }
