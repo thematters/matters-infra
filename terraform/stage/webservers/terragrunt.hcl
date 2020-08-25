@@ -43,7 +43,7 @@ dependencies {
 inputs = {
   env_name = "${local.env}"
   region = "${local.region}"
-  ami_ubuntu = "ami-0bcc094591f354be2"
+  ami_ubuntu = "ami-0007cf37783ff7e10"
 
   es_instance_type = "t3a.medium"
   es_instance_count = 1

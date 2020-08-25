@@ -34,6 +34,47 @@ data "aws_security_group" "default" {
 # =======================================================
 # ES
 # =======================================================
+module "es_security_group" {
+  source = "terraform-aws-modules/security-group/aws"
+  version = "~> 3.0"
+
+  name        = "${var.env_name}-es-sg"
+  description = "Security group for IPFS usage with EC2 instance"
+  vpc_id      = "${data.aws_vpc.web.id}"
+
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = [
+      "ssh-tcp"
+  ]
+  ingress_with_cidr_blocks = [
+      {
+          from_port = 9200,
+          to_port = 9200,
+          protocol = "tcp",
+          description = "ES port",
+          cidr_blocks = "10.10.0.0/16"
+      },
+      {
+          from_port = 4789,
+          to_port = 7946,
+          protocol = "udp",
+          description = "Docker Swarm",
+          cidr_blocks = "10.10.0.0/16"
+      },
+      {
+          from_port = 2377,
+          to_port = 7946,
+          protocol = "tcp",
+          description = "Docker Swarm",
+          cidr_blocks = "10.10.0.0/16"
+      }
+  ]
+  egress_rules        = ["all-all"]
+}
+resource "aws_eip" "es_this" {
+  vpc      = true
+  instance = module.es.id[0]
+}
 module "es" {
   source = "git::git@github.com:terraform-aws-modules/terraform-aws-ec2-instance.git?ref=v2.15.0"
 
@@ -44,8 +85,24 @@ module "es" {
   ami                         = "${var.ami_ubuntu}"
   instance_type               = "${var.es_instance_type}"
   subnet_id                   = tolist(data.aws_subnet_ids.public.ids)[0]
-  vpc_security_group_ids      = [data.aws_security_group.default.id]
-  associate_public_ip_address = false
+  vpc_security_group_ids      = [module.es_security_group.this_security_group_id]
+  associate_public_ip_address = true
+
+  user_data = <<EOF
+    #!/bin/bash
+    sudo apt-get update
+    sudo sudo apt-get install \
+      apt-transport-https \
+      ca-certificates \
+      curl \
+      gnupg-agent \
+      software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io
+    sudo usermod -aG docker $USER
+  EOF
 }
 
 # =======================================================
@@ -143,7 +200,7 @@ module "s3_server" {
   source = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 1.9.0"
 
-  bucket = "server-${var.env_name}.matters.news"
+  bucket = "matters-server-${var.env_name}"
 
   // acl = "public"
   // acl public 
@@ -166,7 +223,7 @@ module "s3_oss" {
 # =======================================================
 module "eb_app" {
   source      = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-application.git?ref=tags/0.3.0"
-  name        = "matters-${var.env_name}"
+  name        = "matters-eb-${var.env_name}"
   description = "Matters beanstalk application for ${var.env_name} environment"
 }
 

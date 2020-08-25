@@ -40,7 +40,7 @@ dependencies {
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration
 inputs = {
   env_name = "${local.env}"
-  instance_class = "db.t3.small"
+  instance_class = "db.t3.micro"
   allocated_storage = 20
   publicly_accessible = true
 }
