@@ -234,6 +234,7 @@ module "eb_env_web" {
 
   region = var.region
   instance_type = var.web_instance_type
+  environment_type = var.web_environment_type
   autoscale_min = var.web_autoscale_min
   autoscale_max = var.web_autoscale_max
   keypair = "${var.key_name}"
@@ -263,6 +264,7 @@ module "eb_env_server" {
 
   region = var.region
   instance_type = var.server_instance_type
+  environment_type = var.server_environment_type
   autoscale_min = var.server_autoscale_min
   autoscale_max = var.server_autoscale_max
   keypair = "${var.key_name}"
@@ -276,4 +278,167 @@ module "eb_env_server" {
   // https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html
   // https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html#platforms-supported.docker
   solution_stack_name = "64bit Amazon Linux 2018.03 v2.15.3 running Docker 19.03.6-ce"
+
+  additional_settings = [
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_APOLLO_API_KEY"
+      value = var.server_env_apollo_api_key
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_AWS_ACCESS_ID"
+      value = var.server_env_aws_access_id
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_AWS_ACCESS_KEY"
+      value = var.server_env_aws_access_key
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_AWS_CLOUD_FRONT_ENDPOINT"
+      value = "assets-${var.region}.matters.news"
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_AWS_REGION"
+      value = var.region
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_AWS_S3_BUCKET"
+      value = module.s3_server.this_s3_bucket_id
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_AWS_S3_ENDPOINT"
+      value = "s3-${var.region}.amazonaws.com"
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_CACHE_HOST"
+      value = module.redis.elasticache_replication_group_primary_endpoint_address
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_CACHE_PORT"
+      value = 6379
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_EMAIL_FROM_ASK"
+      value = "Matters<ask@matters.news>"
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_ENV"
+      value = "staging"
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_FIREBASE_CREDENTIALS"
+      value = var.server_env_firebase_credentials
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_GCP_PROJECT_ID"
+      value = var.server_env_gcp_project_id
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_IPFS_HOST"
+      value = module.ipfs.private_dns[0]
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_IPFS_PORT"
+      value = 5001
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_JPUSH_API_KEY"
+      value = var.server_env_jpush_api_key
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_JPUSH_API_SECRET"
+      value = var.server_env_jpush_api_secret
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_JWT_SECRET"
+      value = var.server_env_jwt_secret
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_API_URL"
+      value = var.server_env_likecoin_api_url
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_AUTH_URL"
+      value = var.server_env_likecoin_auth_url
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_CALLBACK_URL"
+      value = "https://server-${var.env_name}.matters.news/oauth/likecoin/callback"
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_CLIENT_ID"
+      value = var.server_env_likecoin_client_id
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_CLIENT_SECRET"
+      value = var.server_env_likecoin_client_secret
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_MIGRATION_API_URL"
+      value = var.server_env_likecoin_migration_api_url
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_OAUTH_CLIENT_NAME"
+      value = "LikeCoin"
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_PAY_CALLBACK_URL"
+      value = "https://server-${var.env_name}.matters.news/pay/likecoin"
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_PAY_LIKER_ID"
+      value = var.server_env_likecoin_pay_liker_id
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_PAY_URL"
+      value = var.server_env_likecoin_pay_url
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_LIKECOIN_TOKEN_URL"
+      value = var.server_env_likecoin_token_url
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_OAUTH_SECRET"
+      value = var.server_env_oauth_secret
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_OICD_PRIVATE_KEY"
+      value = var.server_env_oicd_private_key
+    },
+    {
+      namespace = "aws:elasticbeanstalk:application:environment"
+      name = "MATTERS_PG_DATABASE"
+      value = var.db_instance_address
+    }
+  ] 
 }

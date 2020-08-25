@@ -34,9 +34,13 @@ include {
   path = find_in_parent_folders()
 }
 
-# databases module depends on networks module
-dependencies {
-    paths = ["../networks"]
+# webservers module depends on networks and databases module
+dependency "networkds" {
+  config_path = "../networks"
+}
+
+dependency "db" {
+  config_path = "../databases"
 }
 
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration
@@ -44,6 +48,7 @@ inputs = {
   env_name = "${local.env}"
   region = "${local.region}"
   ami_ubuntu = "ami-0007cf37783ff7e10"
+  db_instance_address = dependency.db.outputs.db_instance_address
 
   es_instance_type = "t3a.medium"
   es_instance_count = 1
@@ -57,10 +62,14 @@ inputs = {
   redis_automatic_failover_enabled = false
 
   server_instance_type = "t3a.small"
+  server_environment_type = "LoadBalanced"
+  # only used with environment_type is "LoadBalanced"
   server_autoscale_min = 1
   server_autoscale_max = 2
 
   web_instance_type = "t3a.small"
+  web_environment_type = "LoadBalanced"
+  # only used with environment_type is "LoadBalanced"
   web_autoscale_min = 1
   web_autoscale_max = 2
 }

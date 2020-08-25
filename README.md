@@ -4,6 +4,11 @@
 
 ### Terragrunt Commands
 
+### Setup DB
+
+- pg_dump
+- pg < dumpfile.sql
+
 ### Setup ES
 
 - Follow the REAMD of elasticsearch setup
@@ -15,4 +20,4 @@
 
 ## TODO
 
-change default security group rules
+change default security group rules for DB accessing
