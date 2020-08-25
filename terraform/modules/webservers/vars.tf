@@ -3,6 +3,11 @@ variable "env_name" {
     type = string
 }
 
+variable "region" {
+    description = "The name of the region"
+    type = string
+}
+
 variable "key_name" {
     description = "The SSH key name"
     type = string
@@ -47,3 +52,29 @@ variable "redis_automatic_failover_enabled" {
     description = "Redis automatic failover"
     type =bool
 }
+
+variable "server_instance_type" {
+    description = "Elastic beanstalk EC2 instance type for API server"
+    type = string
+}
+variable "server_autoscale_min" {
+    description = "Elastic beanstalk autoscaling instance counts"
+    type = number
+} 
+variable "server_autoscale_max" {
+    description = "Elastic beanstalk autoscaling instance counts"
+    type = number
+} 
+
+variable "web_instance_type" {
+    description = "Elastic beanstalk EC2 instance type for frontend web"
+    type = string
+}
+variable "web_autoscale_min" {
+    description = "Elastic beanstalk autoscaling instance counts"
+    type = number
+} 
+variable "web_autoscale_max" {
+    description = "Elastic beanstalk autoscaling instance counts"
+    type = number
+} 

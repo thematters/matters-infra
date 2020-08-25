@@ -132,6 +132,8 @@ module "redis" {
 # =======================================================
 module "s3_web" {
   source = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 1.9.0"
+
   bucket = "web-${var.env_name}.matters.news"
 
   // bucket policy public for get object
@@ -139,6 +141,8 @@ module "s3_web" {
 
 module "s3_server" {
   source = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 1.9.0"
+
   bucket = "server-${var.env_name}.matters.news"
 
   // acl = "public"
@@ -148,6 +152,8 @@ module "s3_server" {
 
 module "s3_oss" {
   source = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 1.9.0"
+
   bucket = "oss-${var.env_name}.matters.news"  
 
   // bucket policy public
@@ -158,3 +164,59 @@ module "s3_oss" {
 # =======================================================
 # Beanstalk environments
 # =======================================================
+module "eb_app" {
+  source      = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-application.git?ref=tags/0.3.0"
+  name        = "matters-${var.env_name}"
+  description = "Matters beanstalk application for ${var.env_name} environment"
+}
+
+module "eb_env_web" {
+  source = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-environment.git?ref=master"
+  name = "matters-web-${var.env_name}" 
+  description = "Matters beanstalk environment for front web"
+
+  region = var.region
+  instance_type = var.web_instance_type
+  autoscale_min = var.web_autoscale_min
+  autoscale_max = var.web_autoscale_max
+  keypair = "${var.key_name}"
+  elastic_beanstalk_application_name = module.eb_app.elastic_beanstalk_application_name
+
+  loadbalancer_type = "application"
+  vpc_id = data.aws_vpc.web.id
+  loadbalancer_subnets = data.aws_subnet_ids.public.ids
+  application_subnets = data.aws_subnet_ids.private.ids
+
+  // https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html
+  solution_stack_name = "64bit Amazon Linux 2018.03 v4.15.1 running Node.js"
+
+  additional_settings = [
+    {
+      namespace = "aws:elasticbeanstalk:container:nodejs"
+      name = "NodeVersion"
+      value = "12.16.1"
+    }
+  ]
+}
+
+module "eb_env_server" {
+  source = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-environment.git?ref=master"
+  name = "matters-server-${var.env_name}"
+  description = "Matters beanstalk environment for API server"
+
+  region = var.region
+  instance_type = var.server_instance_type
+  autoscale_min = var.server_autoscale_min
+  autoscale_max = var.server_autoscale_max
+  keypair = "${var.key_name}"
+  elastic_beanstalk_application_name = module.eb_app.elastic_beanstalk_application_name
+
+  loadbalancer_type = "application"
+  vpc_id = data.aws_vpc.web.id
+  loadbalancer_subnets = data.aws_subnet_ids.public.ids
+  application_subnets = data.aws_subnet_ids.private.ids
+
+  // https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html
+  // https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html#platforms-supported.docker
+  solution_stack_name = "64bit Amazon Linux 2018.03 v2.15.3 running Docker 19.03.6-ce"
+}
