@@ -1,22 +1,35 @@
 # matters-infra
 
-## Setup
+## Setup infrastructure
 
-### Terragrunt Commands
+### Terragrunt commands (staging environment)
 
-### Setup DB
-
-- pg_dump
-- pg < dumpfile.sql
+- Install `terraform` and `terragrunt`
+- `aws configure`
+- To setup staging environment, go to each of the following sub-folders:
+  - `terraform/stage/networks`
+  - `terraform/stage/databases`
+  - `terraform/stage/webservers`
+- Run the following commands:
+  - `terraform init`
+  - `terraform plan`
+  - `terraform apply`
 
 ### Setup ES
 
-- Follow the REAMD of elasticsearch setup
+Follow the README of elasticsearch setup in [https://github.com/thematters/matters-docker/tree/master/docker/elasticsearch](matters-docker/docker/elasticsearch/README.md)
 
 ### Setup IPFS
 
-- ansible
-- docker-compose up -d
+Follow the READMD of IPFS setup in [https://github.com/thematters/matters-docker/tree/master/docker/ipfs]()
+
+- Ansible
+- `docker-compose up -d`
+
+### Setup DB
+
+- `pg_dump` from develop DB, then
+- psql < dumpfile.sql
 
 ## TODO
 

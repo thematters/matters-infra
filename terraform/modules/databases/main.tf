@@ -7,8 +7,13 @@ data "aws_vpc" "db" {
   }
 }
 
-data "aws_subnet_ids" "all" {
+data "aws_subnet_ids" "public" {
   vpc_id = data.aws_vpc.db.id
+
+  filter {
+    name = "tag:Name"
+    values = ["${var.env_name}-vpc-public-*"]
+  }
 }
 
 data "aws_security_group" "default" {
@@ -57,7 +62,7 @@ module "db" {
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
   # DB subnet group
-  subnet_ids = data.aws_subnet_ids.all.ids
+  subnet_ids = data.aws_subnet_ids.public.ids
 
   # DB parameter group
   family = "postgres11"
